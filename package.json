@@ -1,7 +1,7 @@
 {
   "name": "ccurl.interface.js",
-  "version": "0.0.1",
-  "description": "cCurl Interface for NodeJS",
+  "version": "0.0.2",
+  "description": "ccurl interface for nodejs",
   "main": "index.js",
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1"
@@ -25,6 +25,6 @@
   "homepage": "https://github.com/iotaledger/ccurl.interface.js#readme",
   "dependencies": {
     "ffi": "^2.2.0",
-    "iota.lib.js": "^0.0.12"
+    "iota.lib.js": "^0.0.15"
   }
 }

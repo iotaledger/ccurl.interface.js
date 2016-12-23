@@ -1,7 +1,7 @@
 var IOTA = require('iota.lib.js');
 var ffi = require('ffi')
 
-module.exports = function(minWeightMagnitude, trunkTransaction, branchTransaction, trytes, callback) {
+module.exports = function(trunkTransaction, branchTransaction, trytes, minWeightMagnitude, callback) {
 
     // TODO: VALIDATE THE INPTUS
 
