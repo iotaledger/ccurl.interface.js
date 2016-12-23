@@ -1,12 +1,29 @@
 var IOTA = require('iota.lib.js');
-var ffi = require('ffi')
+var ffi = require('ffi');
+var fs = require('fs');
 
-module.exports = function(trunkTransaction, branchTransaction, trytes, minWeightMagnitude, callback) {
+module.exports = function(trunkTransaction, branchTransaction, minWeightMagnitude, trytes, ccurlPath, callback) {
 
     // TODO: VALIDATE THE INPTUS
 
+    // If no options provided, switch arguments
+    if (arguments.length === 5 && Object.prototype.toString.call(ccurlPath) === "[object Function]") {
+        callback = ccurlPath;
+        ccurlPath = __dirname;
+    }
+
+
     var finalBundleTrytes = [];
     var previousTxHash;
+
+    console.log(ccurlPath);
+
+    // Check if file path exists
+    if (!fs.existsSync(ccurlPath)) {
+        throw new Error("Incorrect file path!");
+    }
+
+    var fullPath = ccurlPath + './libccurl';
 
     // Define libccurl to be used for finding the nonce
     var libccurl = ffi.Library('./libccurl', {
@@ -14,7 +31,6 @@ module.exports = function(trunkTransaction, branchTransaction, trytes, minWeight
     });
 
     var iota = new IOTA();
-
 
     // PROCESS LOGIC:
     // Start with last index transaction

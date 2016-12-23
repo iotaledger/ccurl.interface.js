@@ -20,12 +20,12 @@ Then copy the `libccurl` library from the `build/lib` folder to the main directo
 
 ## How to use
 
-Using this library is fairly simple.
+Using this library is fairly simple. You can optionally provide the full path where you have your compiled libccurl. 
 
 ```
 var ccurl = import('ccurl.interface.js');
 
-ccurl(trunkTransaction, branchTransaction, trytes, minWeightMagnitude, callback)
+ccurl(trunkTransaction, branchTransaction, trytes, minWeightMagnitude, [, path], callback)
 ```
 
 See `example.js`.
