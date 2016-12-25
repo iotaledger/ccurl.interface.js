@@ -23,10 +23,10 @@ module.exports = function(trunkTransaction, branchTransaction, minWeightMagnitud
         throw new Error("Incorrect file path!");
     }
 
-    var fullPath = ccurlPath + './libccurl';
+    var fullPath = ccurlPath + '/libccurl';
 
     // Define libccurl to be used for finding the nonce
-    var libccurl = ffi.Library('./libccurl', {
+    var libccurl = ffi.Library(fullPath, {
       ccurl_pow : [ 'string', [ 'string', 'int'] ]
     });
 
