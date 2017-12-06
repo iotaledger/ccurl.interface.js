@@ -1,8 +1,42 @@
+var EventEmitter = require('events');
 var IOTA = require('iota.lib.js');
 var ffi = require('ffi');
 var fs = require('fs');
 
 module.exports = function(trunkTransaction, branchTransaction, minWeightMagnitude, trytes, ccurlPath, callback) {
+    // Set up the emitter and emit functions
+    var emitter;
+
+    if (!callback) {
+        emitter = new EventEmitter();
+    }
+
+    function finishWithError(message) {
+        const err = typeof message === 'string' ? new Error(message) : message;
+
+        if (callback) {
+            return callback(err, null);
+        } else {
+            emitter.emit('done', err, null);
+            return;
+        }
+    }
+
+    function reportProgress(count) {
+        if (emitter) {
+            emitter.emit('progress', null, count / trytes.length);
+            return;
+        }
+    }
+
+    function finishWithResult(result) {
+        if (callback) {
+            return callback(null, result);
+        } else {
+            emitter.emit('done', null, result);
+            return;
+        }
+    }
 
     // If no file path provided, switch arguments
     if (arguments.length === 5 && Object.prototype.toString.call(ccurlPath) === "[object Function]") {
@@ -15,31 +49,27 @@ module.exports = function(trunkTransaction, branchTransaction, minWeightMagnitud
 
     // inputValidator: Check if correct hash
     if (!iota.valid.isHash(trunkTransaction)) {
-
-        return callback(new Error("Invalid trunkTransaction"));
+        return finishWithError("Invalid trunkTransaction");
     }
 
     // inputValidator: Check if correct hash
     if (!iota.valid.isHash(branchTransaction)) {
-
-        return callback(new Error("Invalid branchTransaction"));
+        return finishWithError("Invalid branchTransaction");
     }
 
     // inputValidator: Check if int
     if (!iota.valid.isValue(minWeightMagnitude)) {
-
-        return callback(new Error("Invalid minWeightMagnitude"));
+        return finishWithError("Invalid minWeightMagnitude");
     }
 
     // inputValidator: Check if array of trytes
     if (!iota.valid.isArrayOfTrytes(trytes)) {
-
-        return callback(new Error("Invalid trytes supplied"));
+        return finishWithError("Invalid trytes supplied");
     }
 
     // Check if file path exists
     if (!fs.existsSync(ccurlPath)) {
-        throw new Error("Incorrect file path!");
+        return finishWithError("Incorrect file path!");
     }
 
     var fullPath = ccurlPath + '/libccurl';
@@ -59,7 +89,7 @@ module.exports = function(trunkTransaction, branchTransaction, minWeightMagnitud
 
             if (error) {
 
-                return callback(error);
+                return finishWithError(error);
 
             } else {
 
@@ -72,14 +102,14 @@ module.exports = function(trunkTransaction, branchTransaction, minWeightMagnitud
                 } else {
 
                     // reverse the order so that it's ascending from currentIndex
-                    return callback(null, finalBundleTrytes.reverse());
+                    return finishWithResult(finalBundleTrytes.reverse());
 
                 }
             }
         });
     }
 
-    function getBundleTrytes(thisTrytes, callback) {
+    function getBundleTrytes(thisTrytes, bundleCallback) {
         // PROCESS LOGIC:
         // Start with last index transaction
         // Assign it the trunk / branch which the user has supplied
@@ -95,7 +125,7 @@ module.exports = function(trunkTransaction, branchTransaction, minWeightMagnitud
 
             // Check if last transaction in the bundle
             if (txObject.lastIndex !== txObject.currentIndex) {
-                return callback(new Error("Wrong bundle order. The bundle should be ordered in descending order from currentIndex"));
+                return bundleCallback(new Error("Wrong bundle order. The bundle should be ordered in descending order from currentIndex"));
             }
 
             txObject.trunkTransaction = trunkTransaction;
@@ -107,7 +137,7 @@ module.exports = function(trunkTransaction, branchTransaction, minWeightMagnitud
             libccurl.ccurl_pow.async(newTrytes, minWeightMagnitude, function(error, returnedTrytes) {
 
                 if (error) {
-                    return callback(error);
+                    return bundleCallback(error);
                 }
 
                 var newTxObject= iota.utils.transactionObject(returnedTrytes);
@@ -118,7 +148,7 @@ module.exports = function(trunkTransaction, branchTransaction, minWeightMagnitud
 
                 finalBundleTrytes.push(returnedTrytes);
 
-                return callback(null);
+                return bundleCallback(null);
             });
 
         } else {
@@ -137,7 +167,7 @@ module.exports = function(trunkTransaction, branchTransaction, minWeightMagnitud
 
                 if (error) {
 
-                    return callback(error);
+                    return bundleCallback(error);
                 }
 
                 var newTxObject= iota.utils.transactionObject(returnedTrytes);
@@ -148,7 +178,7 @@ module.exports = function(trunkTransaction, branchTransaction, minWeightMagnitud
 
                 finalBundleTrytes.push(returnedTrytes);
 
-                return callback(null);
+                return bundleCallback(null);
             });
         }
     }
