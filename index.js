@@ -42,6 +42,8 @@ module.exports = function(trunkTransaction, branchTransaction, minWeightMagnitud
     if (arguments.length === 5 && Object.prototype.toString.call(ccurlPath) === "[object Function]") {
         callback = ccurlPath;
         ccurlPath = __dirname;
+    } else if (arguments.length === 4) {
+        ccurlPath = __dirname;
     }
 
     // Declare IOTA library
