@@ -1,3 +1,5 @@
+'use strict';
+
 const EventEmitter = require('events');
 const IOTA = require('iota.lib.js');
 const ffi = require('ffi');
@@ -187,4 +189,8 @@ module.exports = function(trunkTransaction, branchTransaction, minWeightMagnitud
     }
 
     loopTrytes();
+
+    if (emitter) {
+        return emitter;
+    }
 }
