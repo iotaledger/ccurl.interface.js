@@ -122,9 +122,11 @@ module.exports = function(trunkTransaction, branchTransaction, minWeightMagnitud
         // If this is the first transaction, to be processed
         // Make sure that it's the last in the bundle and then
         // assign it the supplied trunk and branch transactions
+        var txObject, newTrytes;
+
         if (!previousTxHash) {
 
-            var txObject = iota.utils.transactionObject(thisTrytes);
+            txObject = iota.utils.transactionObject(thisTrytes);
 
             // Check if last transaction in the bundle
             if (txObject.lastIndex !== txObject.currentIndex) {
@@ -134,7 +136,7 @@ module.exports = function(trunkTransaction, branchTransaction, minWeightMagnitud
             txObject.trunkTransaction = trunkTransaction;
             txObject.branchTransaction = branchTransaction;
 
-            var newTrytes = iota.utils.transactionTrytes(txObject);
+            newTrytes = iota.utils.transactionTrytes(txObject);
 
             // cCurl updates the nonce as well as the transaction hash
             libccurl.ccurl_pow.async(newTrytes, minWeightMagnitude, function(error, returnedTrytes) {
@@ -156,14 +158,14 @@ module.exports = function(trunkTransaction, branchTransaction, minWeightMagnitud
 
         } else {
 
-            var txObject = iota.utils.transactionObject(thisTrytes);
+            txObject = iota.utils.transactionObject(thisTrytes);
 
             // Chain the bundle together via the trunkTransaction (previous tx in the bundle)
             // Assign the supplied trunkTransaciton as branchTransaction
             txObject.trunkTransaction = previousTxHash;
             txObject.branchTransaction = trunkTransaction;
 
-            var newTrytes = iota.utils.transactionTrytes(txObject);
+            newTrytes = iota.utils.transactionTrytes(txObject);
 
             // cCurl updates the nonce as well as the transaction hash
             libccurl.ccurl_pow.async(newTrytes, minWeightMagnitude, function(error, returnedTrytes) {
