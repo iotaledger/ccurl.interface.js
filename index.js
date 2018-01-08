@@ -1,11 +1,11 @@
-var EventEmitter = require('events');
-var IOTA = require('iota.lib.js');
-var ffi = require('ffi');
-var fs = require('fs');
+const EventEmitter = require('events');
+const IOTA = require('iota.lib.js');
+const ffi = require('ffi');
+const fs = require('fs');
 
 module.exports = function(trunkTransaction, branchTransaction, minWeightMagnitude, trytes, ccurlPath, callback) {
     // Set up the emitter and emit functions
-    var emitter;
+    let emitter;
 
     if (!callback) {
         emitter = new EventEmitter();
@@ -47,7 +47,7 @@ module.exports = function(trunkTransaction, branchTransaction, minWeightMagnitud
     }
 
     // Declare IOTA library
-    var iota = new IOTA();
+    const iota = new IOTA();
 
     // inputValidator: Check if correct hash
     if (!iota.valid.isHash(trunkTransaction)) {
@@ -74,16 +74,16 @@ module.exports = function(trunkTransaction, branchTransaction, minWeightMagnitud
         return finishWithError("Incorrect file path!");
     }
 
-    var fullPath = ccurlPath + '/libccurl';
+    const fullPath = ccurlPath + '/libccurl';
 
     // Define libccurl to be used for finding the nonce
-    var libccurl = ffi.Library(fullPath, {
+    const libccurl = ffi.Library(fullPath, {
         ccurl_pow : [ 'string', [ 'string', 'int'] ]
     });
 
-    var finalBundleTrytes = [];
-    var previousTxHash;
-    var i = 0;
+    const finalBundleTrytes = [];
+    let previousTxHash;
+    let i = 0;
 
     function loopTrytes() {
 
@@ -122,11 +122,9 @@ module.exports = function(trunkTransaction, branchTransaction, minWeightMagnitud
         // If this is the first transaction, to be processed
         // Make sure that it's the last in the bundle and then
         // assign it the supplied trunk and branch transactions
-        var txObject, newTrytes;
-
         if (!previousTxHash) {
 
-            txObject = iota.utils.transactionObject(thisTrytes);
+            const txObject = iota.utils.transactionObject(thisTrytes);
 
             // Check if last transaction in the bundle
             if (txObject.lastIndex !== txObject.currentIndex) {
@@ -136,7 +134,7 @@ module.exports = function(trunkTransaction, branchTransaction, minWeightMagnitud
             txObject.trunkTransaction = trunkTransaction;
             txObject.branchTransaction = branchTransaction;
 
-            newTrytes = iota.utils.transactionTrytes(txObject);
+            const newTrytes = iota.utils.transactionTrytes(txObject);
 
             // cCurl updates the nonce as well as the transaction hash
             libccurl.ccurl_pow.async(newTrytes, minWeightMagnitude, function(error, returnedTrytes) {
@@ -145,10 +143,10 @@ module.exports = function(trunkTransaction, branchTransaction, minWeightMagnitud
                     return bundleCallback(error);
                 }
 
-                var newTxObject= iota.utils.transactionObject(returnedTrytes);
+                const newTxObject= iota.utils.transactionObject(returnedTrytes);
 
                 // Assign the previousTxHash to this tx
-                var txHash = newTxObject.hash;
+                const txHash = newTxObject.hash;
                 previousTxHash = txHash;
 
                 finalBundleTrytes.push(returnedTrytes);
@@ -158,14 +156,14 @@ module.exports = function(trunkTransaction, branchTransaction, minWeightMagnitud
 
         } else {
 
-            txObject = iota.utils.transactionObject(thisTrytes);
+            const txObject = iota.utils.transactionObject(thisTrytes);
 
             // Chain the bundle together via the trunkTransaction (previous tx in the bundle)
             // Assign the supplied trunkTransaciton as branchTransaction
             txObject.trunkTransaction = previousTxHash;
             txObject.branchTransaction = trunkTransaction;
 
-            newTrytes = iota.utils.transactionTrytes(txObject);
+            const newTrytes = iota.utils.transactionTrytes(txObject);
 
             // cCurl updates the nonce as well as the transaction hash
             libccurl.ccurl_pow.async(newTrytes, minWeightMagnitude, function(error, returnedTrytes) {
@@ -175,10 +173,10 @@ module.exports = function(trunkTransaction, branchTransaction, minWeightMagnitud
                     return bundleCallback(error);
                 }
 
-                var newTxObject= iota.utils.transactionObject(returnedTrytes);
+                const newTxObject= iota.utils.transactionObject(returnedTrytes);
 
                 // Assign the previousTxHash to this tx
-                var txHash = newTxObject.hash;
+                const txHash = newTxObject.hash;
                 previousTxHash = txHash;
 
                 finalBundleTrytes.push(returnedTrytes);
