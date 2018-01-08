@@ -3,6 +3,9 @@
   "version": "0.0.5",
   "description": "ccurl interface for nodejs",
   "main": "index.js",
+  "engines" : {
+    "node" : ">=4"
+  },
   "scripts": {
     "lint": "eslint index.js",
     "test": "node test/test.js"
@@ -37,6 +40,7 @@
       "ecmaVersion": 6
     },
     "env": {
+      "es6": true,
       "node": true
     },
     "rules": {
