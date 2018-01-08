@@ -4,6 +4,7 @@
   "description": "ccurl interface for nodejs",
   "main": "index.js",
   "scripts": {
+    "lint": "eslint index.js",
     "test": "node test/test.js"
   },
   "repository": {
@@ -26,5 +27,17 @@
   "dependencies": {
     "ffi": "^2.2.0",
     "iota.lib.js": "^0.4.3"
+  },
+  "devDependencies": {
+    "eslint": "^4.15.0"
+  },
+  "eslintConfig": {
+    "extends": "eslint:recommended",
+    "parserOptions": {
+      "ecmaVersion": 6
+    },
+    "env": {
+      "node": true
+    }
   }
 }
