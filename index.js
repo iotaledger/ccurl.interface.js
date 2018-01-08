@@ -99,6 +99,7 @@ module.exports = function(trunkTransaction, branchTransaction, minWeightMagnitud
 
                 if (i < trytes.length) {
 
+                    reportProgress(i);
                     loopTrytes();
 
                 } else {
