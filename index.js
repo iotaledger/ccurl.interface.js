@@ -188,9 +188,11 @@ module.exports = function(trunkTransaction, branchTransaction, minWeightMagnitud
         }
     }
 
-    loopTrytes();
-
     if (emitter) {
+        emitter.start = loopTrytes
+        
         return emitter;
     }
+
+    loopTrytes();
 }
