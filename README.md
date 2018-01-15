@@ -22,10 +22,44 @@ Then copy the `libccurl` library from the `build/lib` folder to the main directo
 
 Using this library is fairly simple. You can optionally provide the full path where you have your compiled libccurl. 
 
-```
-var ccurl = import('ccurl.interface.js');
+### API
 
-ccurl(trunkTransaction, branchTransaction, trytes, minWeightMagnitude, [, path], callback)
+```
+ccurl(
+    trunkTransaction: string,
+    branchTransaction: string,
+    trytes: string[],
+    minWeightMagnitude: number,
+    path?: string,
+    callback?: (error: Error, result: string[]) => void
+): EventEmitter | void
 ```
 
-See `example.js`.
+When no callback is passed, the method returns an `EventEmitter` which allows you to track job progress. You must call `start` to begin the job.
+
+#### Events:
+
+- `'progress'`: Callback `result` is a number between 0 and 1 as a fraction of `trytes.length`
+- `'done'`: Callback `result` is the array of tryte strings
+
+#### Methods:
+
+- `start: () => void`: Begin the job.
+
+#### Example:
+
+```
+const ccurl = require('ccurl.interface.js')
+
+const job = ccurl(trunkTransaction, branchTransaction, trytes, minWeightMagnitude, [, path])
+
+job.on('progress', (err, progress) => {
+    console.log(progress) // A number between 0 and 1 as a percentage of `trytes.length`
+})
+
+job.on('done', callback)
+
+job.start()
+```
+
+See `example.js` or `test/test.js`.
