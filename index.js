@@ -17,26 +17,23 @@ module.exports = function(trunkTransaction, branchTransaction, minWeightMagnitud
         const err = typeof message === 'string' ? new Error(message) : message;
 
         if (callback) {
-            return callback(err, null);
+            callback(err, null);
         } else {
             emitter.emit('done', err, null);
-            return;
         }
     }
 
     function reportProgress(count) {
         if (emitter) {
             emitter.emit('progress', null, count / trytes.length);
-            return;
         }
     }
 
     function finishWithResult(result) {
         if (callback) {
-            return callback(null, result);
+            callback(null, result);
         } else {
             emitter.emit('done', null, result);
-            return;
         }
     }
 
@@ -51,29 +48,33 @@ module.exports = function(trunkTransaction, branchTransaction, minWeightMagnitud
     // Declare IOTA library
     const iota = new IOTA();
 
-    // inputValidator: Check if correct hash
-    if (!iota.valid.isHash(trunkTransaction)) {
-        return finishWithError("Invalid trunkTransaction");
-    }
+    const isValid = () => {
+        // inputValidator: Check if correct hash
+        if (!iota.valid.isHash(trunkTransaction)) {
+            return finishWithError("Invalid trunkTransaction");
+        }
+    
+        // inputValidator: Check if correct hash
+        if (!iota.valid.isHash(branchTransaction)) {
+            return finishWithError("Invalid branchTransaction");
+        }
+    
+        // inputValidator: Check if int
+        if (!iota.valid.isValue(minWeightMagnitude)) {
+            return finishWithError("Invalid minWeightMagnitude");
+        }
+    
+        // inputValidator: Check if array of trytes
+        if (!iota.valid.isArrayOfTrytes(trytes)) {
+            return finishWithError("Invalid trytes supplied");
+        }
+    
+        // Check if file path exists
+        if (!fs.existsSync(ccurlPath)) {
+            return finishWithError("Incorrect file path!");
+        }
 
-    // inputValidator: Check if correct hash
-    if (!iota.valid.isHash(branchTransaction)) {
-        return finishWithError("Invalid branchTransaction");
-    }
-
-    // inputValidator: Check if int
-    if (!iota.valid.isValue(minWeightMagnitude)) {
-        return finishWithError("Invalid minWeightMagnitude");
-    }
-
-    // inputValidator: Check if array of trytes
-    if (!iota.valid.isArrayOfTrytes(trytes)) {
-        return finishWithError("Invalid trytes supplied");
-    }
-
-    // Check if file path exists
-    if (!fs.existsSync(ccurlPath)) {
-        return finishWithError("Incorrect file path!");
+        return true;
     }
 
     const fullPath = ccurlPath + '/libccurl';
@@ -88,30 +89,32 @@ module.exports = function(trunkTransaction, branchTransaction, minWeightMagnitud
     let i = 0;
 
     function loopTrytes() {
-
-        getBundleTrytes(trytes[i], function(error) {
-
-            if (error) {
-
-                return finishWithError(error);
-
-            } else {
-
-                i++;
-
-                if (i < trytes.length) {
-
-                    reportProgress(i);
-                    loopTrytes();
-
+        // Validation check must be done here since this is the entry point for the event emitter
+        if (isValid()) {
+            getBundleTrytes(trytes[i], function(error) {
+    
+                if (error) {
+    
+                    return finishWithError(error);
+    
                 } else {
-
-                    // reverse the order so that it's ascending from currentIndex
-                    return finishWithResult(finalBundleTrytes.reverse());
-
+    
+                    i++;
+    
+                    if (i < trytes.length) {
+    
+                        reportProgress(i);
+                        loopTrytes();
+    
+                    } else {
+    
+                        // reverse the order so that it's ascending from currentIndex
+                        return finishWithResult(finalBundleTrytes.reverse());
+    
+                    }
                 }
-            }
-        });
+            });
+        }
     }
 
     function getBundleTrytes(thisTrytes, bundleCallback) {
