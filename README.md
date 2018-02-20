@@ -12,6 +12,7 @@ $ npm install ccurl.interface.js
 After that, you will have to compile cCurl locally on your machine. Follow the instructions on the [official repo here](#https://github.com/iotaledger/ccurl).
 ```
 $ git clone https://github.com/iotaledger/ccurl.git
+$ git submodule update --init --recursive
 $ mkdir build && cd build && cmake .. && cd .. && make -C build
 ```
 
