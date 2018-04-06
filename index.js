@@ -138,6 +138,9 @@ module.exports = function(trunkTransaction, branchTransaction, minWeightMagnitud
 
             txObject.trunkTransaction = trunkTransaction;
             txObject.branchTransaction = branchTransaction;
+            txObject.attachmentTimestamp = Date.now();
+            txObject.attachmentTimestampLowerBound = 0;
+            txObject.attachmentTimestampUpperBound = (Math.pow(3,27) - 1) / 2;
 
             const newTrytes = iota.utils.transactionTrytes(txObject);
 
@@ -167,6 +170,9 @@ module.exports = function(trunkTransaction, branchTransaction, minWeightMagnitud
             // Assign the supplied trunkTransaciton as branchTransaction
             txObject.trunkTransaction = previousTxHash;
             txObject.branchTransaction = trunkTransaction;
+            txObject.attachmentTimestamp = Date.now();
+            txObject.attachmentTimestampLowerBound = 0;
+            txObject.attachmentTimestampUpperBound = (Math.pow(3,27) - 1) / 2;
 
             const newTrytes = iota.utils.transactionTrytes(txObject);
 
