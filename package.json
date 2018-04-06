@@ -1,6 +1,6 @@
 {
   "name": "ccurl.interface.js",
-  "version": "0.0.8",
+  "version": "0.0.9",
   "description": "ccurl interface for nodejs",
   "main": "index.js",
   "engines" : {
